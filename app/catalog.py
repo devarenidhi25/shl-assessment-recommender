@@ -17,6 +17,20 @@ KEY_TO_CODE: Dict[str, str] = {
     "Simulations": "S",
 }
 
+_TOKEN_RE = re.compile(r"[a-zA-Z0-9+#\.]+")
+_GENERIC_NAME_WORDS = {
+    "new", "the", "and", "for", "of", "test", "assessment", "report", "development",
+    "adaptive", "level", "entry", "general", "individual", "standard", "profile",
+}
+
+
+def _tokenize(text: str) -> List[str]:
+    return [t.lower() for t in _TOKEN_RE.findall(text or "")]
+
+
+def _normalize_url(url: str) -> str:
+    return (url or "").strip().rstrip("/").lower()
+
 
 @dataclass
 class CatalogItem:
@@ -89,6 +103,7 @@ class Catalog:
         self.path = path
         self.items: List[CatalogItem] = []
         self._by_url: Dict[str, CatalogItem] = {}
+        self._by_url_normalized: Dict[str, CatalogItem] = {}
         self._by_name_lower: Dict[str, CatalogItem] = {}
         self._load()
 
@@ -106,13 +121,21 @@ class Catalog:
             deduped.append(it)
         self.items = deduped
         self._by_url = {it.url: it for it in self.items}
+        self._by_url_normalized = {_normalize_url(it.url): it for it in self.items}
         self._by_name_lower = {it.name.lower(): it for it in self.items}
 
     def all(self) -> List[CatalogItem]:
         return self.items
 
     def get_by_url(self, url: str) -> Optional[CatalogItem]:
-        return self._by_url.get(url.strip())
+        if not url:
+            return None
+        exact = self._by_url.get(url.strip())
+        if exact:
+            return exact
+        # tolerate trailing-slash / whitespace / case drift from LLM output
+        # without ever accepting a url that isn't actually in the catalog
+        return self._by_url_normalized.get(_normalize_url(url))
 
     def get_by_name(self, name: str) -> Optional[CatalogItem]:
         return self._by_name_lower.get(name.strip().lower())
@@ -121,14 +144,48 @@ class Catalog:
         fragment_l = fragment.strip().lower()
         if not fragment_l:
             return []
+
         exact = self._by_name_lower.get(fragment_l)
         if exact:
             return [exact]
-        matches = [it for it in self.items if fragment_l in it.name.lower()]
-        return matches[:limit]
+
+        # direct substring match (fragment fully contained in the catalog name,
+        # or the catalog name fully contained in a longer fragment/sentence)
+        substring_matches = [
+            it for it in self.items
+            if fragment_l in it.name.lower() or it.name.lower() in fragment_l
+        ]
+        if substring_matches:
+            return substring_matches[:limit]
+
+        # token-overlap fallback: handles cases like "Verify G+" not being a
+        # contiguous substring of "SHL Verify Interactive G+" because a word
+        # sits in between -- users reference products by fragments/acronyms
+        # that don't preserve the catalog's exact word order
+        fragment_tokens = set(t for t in _tokenize(fragment_l) if len(t) >= 2)
+        if not fragment_tokens:
+            return []
+
+        scored = []
+        for it in self.items:
+            name_tokens = [
+                t for t in _tokenize(it.name.lower())
+                if len(t) >= 2 and t not in _GENERIC_NAME_WORDS
+            ]
+            if not name_tokens:
+                continue
+            overlap = sum(1 for t in name_tokens if t in fragment_tokens)
+            if overlap == 0:
+                continue
+            ratio = overlap / len(name_tokens)
+            if overlap >= 2 or ratio >= 0.5:
+                scored.append((overlap + ratio, it))
+
+        scored.sort(key=lambda pair: pair[0], reverse=True)
+        return [it for _, it in scored[:limit]]
 
     def is_valid_url(self, url: str) -> bool:
-        return url.strip() in self._by_url
+        return self.get_by_url(url) is not None
 
     def valid_urls(self) -> set:
         return set(self._by_url.keys())

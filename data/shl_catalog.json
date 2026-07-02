@@ -1210,5 +1210,41 @@
     "adaptive": "no",
     "description": "Multi-choice test that measures the knowledge of basic SQL queries, creating and altering tables, filtering, grouping, aggregation in SQL and querying multiple tables.",
     "keys": ["Knowledge & Skills"]
+  },
+  {
+    "entity_id": "3908",
+    "name": "Verify - G+",
+    "link": "https://www.shl.com/products/product-catalog/view/verify-g/",
+    "job_levels": ["General Population", "Graduate", "Manager", "Mid-Professional", "Professional Individual Contributor", "Supervisor", "Director", "Entry-Level", "Executive", "Front Line Manager"],
+    "languages": ["Romanian", "English (USA)", "English International", "French (Canada)", "Latin American Spanish", "Arabic", "Dutch", "French", "German", "Swedish"],
+    "duration": "36 minutes",
+    "remote": "yes",
+    "adaptive": "yes",
+    "description": "The G+ test is part of the Verify suite of cognitive ability tests. Designed to measure three types of ability: Numerical, Deductive, and Inductive, with 30 questions (10 per ability measured). Due to its adaptive nature, appropriate for all job levels and roles.",
+    "keys": ["Ability & Aptitude"]
+  },
+  {
+    "entity_id": "3733b",
+    "name": "SHL Verify Interactive – Deductive Reasoning",
+    "link": "https://www.shl.com/products/product-catalog/view/shl-verify-interactive-deductive-reasoning/",
+    "job_levels": ["Graduate", "Manager", "Mid-Professional", "Professional Individual Contributor"],
+    "languages": ["Chinese Traditional", "Romanian", "Turkish", "English International", "English (USA)", "German", "Italian"],
+    "duration": "20 minutes",
+    "remote": "yes",
+    "adaptive": "yes",
+    "description": "Measures the ability to draw logical conclusions based on information provided, identify strengths and weaknesses of arguments, and complete scenarios using incomplete information.",
+    "keys": ["Ability & Aptitude", "Simulations"]
+  },
+  {
+    "entity_id": "3968",
+    "name": "SHL Verify Interactive - Inductive Reasoning",
+    "link": "https://www.shl.com/products/product-catalog/view/shl-verify-interactive-inductive-reasoning/",
+    "job_levels": ["Professional Individual Contributor", "Graduate", "Manager", "Mid-Professional"],
+    "languages": ["Korean", "Japanese", "Thai", "English International", "English (USA)", "Chinese Simplified"],
+    "duration": "20 minutes",
+    "remote": "yes",
+    "adaptive": "yes",
+    "description": "Evaluates ability to identify specific patterns in data or situations and generalize that information to broader contexts.",
+    "keys": ["Ability & Aptitude", "Simulations"]
   }
 ]

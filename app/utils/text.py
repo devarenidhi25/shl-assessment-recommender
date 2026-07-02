@@ -25,9 +25,13 @@ _CONFIRMATION_RE = re.compile("|".join(CONFIRMATION_PATTERNS), re.IGNORECASE)
 INJECTION_PATTERNS = [
     r"ignore (all|any|previous|the above|prior) instructions",
     r"disregard (all|any|previous|the above|prior) instructions",
+    r"new instructions",
+    r"override (your|the) (rules|instructions|guidelines)",
     r"you are now",
     r"system prompt",
     r"reveal your (prompt|instructions|system message)",
+    r"print (your|the) (system|instructions|prompt)",
+    r"repeat (everything|the words) (above|before)",
     r"act as (an?|the) (?!recruiter|hr)",
     r"pretend (you|to) (are|be)",
     r"forget (everything|all) (you|above)",
